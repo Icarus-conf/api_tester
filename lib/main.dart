@@ -52,10 +52,21 @@ class _ApiCheckerScreenState extends State<ApiCheckerScreen> {
       });
 
       if (response.statusCode == 200) {
-        setState(() {
-          _message = "Success! The API is valid and returned data.";
-        });
-        showToast("API Success (200) - OK", success: true);
+        // Check if CORS headers are present
+        final corsHeaders = response.headers['access-control-allow-origin'];
+        if (corsHeaders == null) {
+          setState(() {
+            _message =
+                "Success, but CORS headers not found. API might block cross-origin requests.";
+          });
+          showToast("API Success, but CORS not allowed", success: false);
+        } else {
+          setState(() {
+            _message =
+                "Success! The API is valid and allows cross-origin requests.";
+          });
+          showToast("API Success (200) - OK with CORS", success: true);
+        }
       } else {
         setState(() {
           _message =
